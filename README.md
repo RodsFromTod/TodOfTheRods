@@ -24,7 +24,7 @@ ejecta.js - sub-system for physics that calculates the impact the ejecta has on 
 
 terrain.js - generates a field of grass and dirt and hills and trees in a random layout, which is where we'll be seeing the impacts occurring. This system is also a sub-system for physics and handles calculating out the resistance to the impact, therefore defining just how hard and what kind of surface is being impacted
 
-visuals.js - this system handles rendering all the visuals for the game, so it interacts with and gets data most other systems and converts them into visual stuff, so it handles rendering the rod, the whole set of terrain, and even all the UI elements
+visuals.js - this system handles rendering all the visuals for the game, so it interacts with and gets data most other systems and converts them into visual stuff, so it handles rendering the rod, the whole set of terrain, terrain objects, the whole 9 yards
 
 upgrades.js - this system handles all the various upgradables the game has. We're moving on from JUST dropping tungsten to the game starting with just tossing a heavy metal rod into the air higher and higher, then eventually dropping heavier and heavier objects from high places, which eventually grows into dropping large heavy objects from weather balloons then into dropping tungsten rods, which leads into making more idealized low-drag shapes and eventually we achieve point of dropping giant rods of tungsten from low earth orbit, which eventual grows to medium earth orbit, and finally launching telephone pole size rods of tungsten from a geosynchronous high earth orbit. The cost of upgrades scales at an exponential rate so that they become harder and harder to buy, within each type of upgrade.
 
