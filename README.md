@@ -1,4 +1,5 @@
-# Rods From Tod is a game I'm not smart or educated enough to get into a workable position, but I'm deeply passionate about the idea so I'm going to share what code there is. This code is in a broken state, the visuals for the terrain and the rod don't display, many of the later sections of code and files simply haven't been written, I'm not using up-to-date versions of all the libraries it depends on. But sometimes when you load the game, there's a pattern of rain, and you can zoom out to see clouds. And I think that part, at least, is nice.
+# Rods From Tod
+is a game I'm not smart or educated enough to get into a workable position, but I'm deeply passionate about the idea so I'm going to share what code there is. This code is in a broken state, the visuals for the terrain and the rod don't display, many of the later sections of code and files simply haven't been written, I'm not using up-to-date versions of all the libraries it depends on. But sometimes when you load the game, there's a pattern of rain, and you can zoom out to see clouds. And I think that part, at least, is nice.
 
 I'm not good enough to finish this, but maybe it will give a starting platform for someone else, and thus won't need to be wasted.
 
