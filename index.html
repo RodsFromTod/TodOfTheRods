@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rod Drop Game</title>
+    <style>
+        html, body { 
+            margin: 0; 
+            padding: 0; 
+            height: 100%; 
+            overflow: hidden; 
+            background: #000; 
+        }
+        canvas { 
+            width: 100%; 
+            height: 100%; 
+            display: none;
+        }
+        #ui { 
+            position: absolute; 
+            top: 10px; 
+            left: 10px; 
+            color: white; 
+            font-family: Arial, sans-serif; 
+            background: rgba(0, 0, 0, 0.7); 
+            padding: 10px; 
+            border-radius: 5px; 
+            z-index: 10; 
+            pointer-events: none; 
+        }
+        #loadingScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: black;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        #loadingBarContainer {
+            width: 50%;
+            height: 20px;
+            background: #333;
+            border: 1px solid #fff;
+        }
+        #loadingBar {
+            width: 0%;
+            height: 100%;
+            background: #0f0;
+            transition: width 0.1s linear;
+        }
+    </style>
+</head>
+<body>
+    <div id="loadingScreen">
+        <h1>Loading...</h1>
+        <div id="loadingBarContainer">
+            <div id="loadingBar"></div>
+        </div>
+    </div>
+    <canvas id="gameCanvas"></canvas>
+    <div id="ui">Score: 0<br>Height: 10m<br>Click to Launch</div>
+
+    <!-- Core Dependencies -->
+    <script src="three.min.js"></script>
+    <script src="CopyShader.js"></script>
+    <script src="Pass.js"></script>
+    <script src="ShaderPass.js"></script>
+    <script src="EffectComposer.js"></script>
+    <script src="RenderPass.js"></script>
+    <script src="ConvolutionShader.js"></script>
+    <script src="BloomPass.js"></script>
+    <script src="simplex-noise.min.js"></script>
+
+    <!-- Game Systems -->
+    <script src="physics.js"></script>
+    <script src="game.js"></script>
+    <script src="terrain.js"></script>
+    <script src="atmosphere.js"></script>
+    <script src="weather.js"></script>
+    <script src="upgrades.js"></script>
+    <script src="rods.js"></script>
+    <script src="impact.js"></script>
+    <script src="ejecta.js"></script>
+    <script src="shockwave.js"></script>
+    <script src="visuals.js"></script>
+    <script src="prestige.js"></script>
+    <script src="ascension.js"></script>
+    <script src="stats.js"></script>
+    <script src="pip.js"></script>
+    <script src="ui.js"></script>
+    <script src="saves.js"></script>
+    <script src="options.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const canvas = document.getElementById('gameCanvas');
+            const uiContainer = document.getElementById('ui');
+            const loadingScreen = document.getElementById('loadingScreen');
+            const loadingBar = document.getElementById('loadingBar');
+
+            if (!canvas) {
+                console.error('Canvas element not found');
+                return;
+            }
+            if (!window.THREE) {
+                console.error('Three.js not loaded');
+                return;
+            }
+
+            // Set initial canvas size to window size
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                if (Game.systems.visuals && Game.systems.visuals.renderer && Game.systems.visuals.camera) {
+                    Game.systems.visuals.renderer.setSize(canvas.width, canvas.height);
+                    if (Game.systems.visuals.composer) {
+                        Game.systems.visuals.composer.setSize(canvas.width, canvas.height);
+                    }
+                    Game.systems.visuals.camera.aspect = canvas.width / canvas.height;
+                    Game.systems.visuals.camera.updateProjectionMatrix();
+                    console.log('Canvas resized to', canvas.width, 'x', canvas.height);
+                } else {
+                    console.warn('Visuals not fully initialized during resize');
+                }
+            }
+
+            let progress = 0;
+            const totalTime = 2500;
+            const intervalTime = 100;
+            const steps = totalTime / intervalTime;
+
+            function checkGameReady() {
+                return window.Game && 
+                       Game.systems.physics && 
+                       Game.systems.visuals && 
+                       Game.systems.visuals.renderer && 
+                       Game.systems.visuals.camera;
+            }
+
+            function updateLoadingBar() {
+                progress += 100 / steps;
+                loadingBar.style.width = `${Math.min(progress, 100)}%`;
+                if (progress < 100 || !checkGameReady()) {
+                    setTimeout(updateLoadingBar, intervalTime);
+                } else {
+                    loadingScreen.style.display = 'none';
+                    canvas.style.display = 'block';
+                    resizeCanvas(); // Initial resize
+                    window.addEventListener('resize', resizeCanvas);
+
+                    const updateUI = () => {
+                        uiContainer.innerHTML = `
+                            Score: ${Math.floor(Game.gameState.score)}<br>
+                            Height: ${Game.gameState.launchHeight.toFixed(1)}m<br>
+                            ${Game.gameState.currentRodIndex >= 0 ? 'Rod Falling' : 'Click to Launch'}
+                        `;
+                        requestAnimationFrame(updateUI);
+                    };
+                    Game.systems.ui = Game.systems.ui || { updateUI: () => updateUI() };
+                    updateUI();
+                }
+            }
+
+            function initializeGame() {
+                try {
+                    console.log('Starting game initialization...');
+                    Game.init(canvas, uiContainer);
+                    setTimeout(updateLoadingBar, intervalTime);
+                } catch (e) {
+                    console.error('Game initialization failed:', e);
+                    uiContainer.innerHTML = 'Error loading game. Check console.';
+                }
+            }
+
+            window.addEventListener('load', () => {
+                console.log('All scripts loaded, initializing game...');
+                initializeGame();
+            });
+
+            // Ensure canvas is visible for debugging
+            canvas.style.background = '#87ceeb'; // Match scene background
+        });
+    </script>
+</body>
+</html>
